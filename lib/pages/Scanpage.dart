@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:virtual_card/constaints/dragitem.dart';
 
 class Scanpage extends StatefulWidget {
   static const String routername = "scanpage";
@@ -40,6 +41,34 @@ class _ScanpageState extends State<Scanpage> {
               ),
             ],
           ),
+          Padding(
+            padding: EdgeInsets.all(8),
+            child: Card(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Dragcarditem(property: Cardinfo.name, ondrop: getproperties),
+                  Dragcarditem(
+                    property: Cardinfo.designation,
+                    ondrop: getproperties,
+                  ),
+                  Dragcarditem(
+                    property: Cardinfo.mobile,
+                    ondrop: getproperties,
+                  ),
+                  Dragcarditem(property: Cardinfo.email, ondrop: getproperties),
+                  Dragcarditem(
+                    property: Cardinfo.address,
+                    ondrop: getproperties,
+                  ),
+                  Dragcarditem(
+                    property: Cardinfo.website,
+                    ondrop: getproperties,
+                  ),
+                ],
+              ),
+            ),
+          ),
           Wrap(
             children: txtlines.map((line) => Showlines(line: line)).toList(),
           ),
@@ -70,6 +99,8 @@ class _ScanpageState extends State<Scanpage> {
   }
 }
 
+void getproperties(String property, String dragitem) {}
+
 class Showlines extends StatelessWidget {
   final String line;
   const Showlines({super.key, required this.line});
@@ -77,6 +108,7 @@ class Showlines extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LongPressDraggable(
+      data: line,
       feedback: Container(
         padding: EdgeInsets.all(8),
         decoration: BoxDecoration(color: Colors.blueGrey),
@@ -87,7 +119,73 @@ class Showlines extends StatelessWidget {
           ).textTheme.labelMedium!.copyWith(color: Colors.white54),
         ),
       ),
-      child: Chip(label: Text(line)),
+      child: Chip(
+        label: Text(line, style: Theme.of(context).textTheme.labelMedium),
+      ),
+    );
+  }
+}
+
+class Dragcarditem extends StatefulWidget {
+  final String property;
+  final Function(String property, String value) ondrop;
+  const Dragcarditem({super.key, required this.property, required this.ondrop});
+
+  @override
+  State<Dragcarditem> createState() => _DragcarditemState();
+}
+
+class _DragcarditemState extends State<Dragcarditem> {
+  String dragitem = "";
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        children: [
+          Expanded(flex: 1, child: Text(widget.property)),
+          Expanded(
+            flex: 2,
+            child: DragTarget<String>(
+              builder: (context, candidateData, rejectedData) => Container(
+                decoration: BoxDecoration(
+                  border: candidateData.isNotEmpty
+                      ? BoxBorder.all(color: Colors.green, width: 4)
+                      : null,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Text(dragitem.isEmpty ? "Drop Here" : dragitem),
+                    ),
+
+                    if (dragitem.isNotEmpty)
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            dragitem = "";
+                          });
+                        },
+                        child: Icon(Icons.clear, color: Colors.red, size: 15),
+                      ),
+                  ],
+                ),
+              ),
+              onAccept: (data) {
+                setState(() {
+                  if (dragitem.isEmpty) {
+                    dragitem = data;
+                  } else {
+                    dragitem += ' , $data';
+                  }
+                  widget.ondrop(data, dragitem);
+                });
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
