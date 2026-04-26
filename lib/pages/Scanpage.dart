@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:virtual_card/constaints/dragitem.dart';
+import 'package:virtual_card/models/contactmodel.dart';
+import 'package:virtual_card/pages/contactform.dart';
 
 class Scanpage extends StatefulWidget {
   static const String routername = "scanpage";
@@ -16,10 +19,75 @@ class Scanpage extends StatefulWidget {
 
 class _ScanpageState extends State<Scanpage> {
   var txtlines = [];
+  String name = "";
+  String designation = "";
+  String email = "";
+  String mobile = "";
+  String address = "";
+  String website = "";
+  String image = "";
+  bool scanover = false;
+
+  void getproperties(String property, String dragitem) {
+    print("draged$dragitem");
+    setState(() {
+      switch (property) {
+        case Cardinfo.name:
+          name = dragitem;
+          break;
+        case Cardinfo.designation:
+          designation = dragitem;
+          break;
+        case Cardinfo.mobile:
+          mobile = dragitem;
+          break;
+
+        case Cardinfo.email:
+          email = dragitem;
+          break;
+
+        case Cardinfo.address:
+          address = dragitem;
+          break;
+        case Cardinfo.website:
+          website = dragitem;
+          break;
+
+        default:
+      }
+    });
+  }
+
+  void setdata() {
+    print(name);
+    final info = Contactmodel(
+      name: name,
+      mobile: mobile,
+      email: email,
+      address: address,
+      website: website,
+      image: image,
+    );
+    context.goNamed(Contactform.routername, extra: info);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Scan Page")),
+      appBar: AppBar(
+        title: Text("Scan Page"),
+
+        actions: [
+          IconButton(
+            onPressed: scanover
+                ? () {
+                    setdata();
+                  }
+                : null,
+            icon: Icon(Icons.arrow_forward),
+          ),
+        ],
+      ),
       body: ListView(
         children: [
           Row(
@@ -41,6 +109,7 @@ class _ScanpageState extends State<Scanpage> {
               ),
             ],
           ),
+
           Padding(
             padding: EdgeInsets.all(8),
             child: Card(
@@ -69,6 +138,14 @@ class _ScanpageState extends State<Scanpage> {
               ),
             ),
           ),
+          if (scanover == true)
+            AlertDialog(
+              title: Text(
+                "Use a long press to move and place information in the appropriate field.",
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+            ),
+
           Wrap(
             children: txtlines.map((line) => Showlines(line: line)).toList(),
           ),
@@ -80,6 +157,7 @@ class _ScanpageState extends State<Scanpage> {
   void getimage(ImageSource camera) async {
     final xfile = await ImagePicker().pickImage(source: camera);
     if (xfile != null) {
+      image = xfile.path;
       EasyLoading.show(status: "Please wait");
       final textreconizer = TextRecognizer(script: TextRecognitionScript.latin);
       final reconizedtext = await textreconizer.processImage(
@@ -94,12 +172,11 @@ class _ScanpageState extends State<Scanpage> {
       }
       setState(() {
         txtlines = tmp;
+        scanover = true;
       });
     }
   }
 }
-
-void getproperties(String property, String dragitem) {}
 
 class Showlines extends StatelessWidget {
   final String line;
@@ -179,7 +256,7 @@ class _DragcarditemState extends State<Dragcarditem> {
                   } else {
                     dragitem += ' , $data';
                   }
-                  widget.ondrop(data, dragitem);
+                  widget.ondrop(widget.property, dragitem);
                 });
               },
             ),
