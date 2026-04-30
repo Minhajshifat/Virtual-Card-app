@@ -4,5 +4,8 @@ abstract final class Cardinfo {
   static const String mobile = "Mobile";
   static const String email = "Email";
   static const String address = "Address";
+  static const String company = "Company";
   static const String website = "Website";
 }
+
+String errormsgforempty = "This Field should not be empty!!";

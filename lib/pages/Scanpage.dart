@@ -21,15 +21,17 @@ class _ScanpageState extends State<Scanpage> {
   var txtlines = [];
   String name = "";
   String designation = "";
+
   String email = "";
   String mobile = "";
   String address = "";
+  String company = "";
   String website = "";
   String image = "";
   bool scanover = false;
 
   void getproperties(String property, String dragitem) {
-    print("draged$dragitem");
+    //print("draged$dragitem");
     setState(() {
       switch (property) {
         case Cardinfo.name:
@@ -52,6 +54,9 @@ class _ScanpageState extends State<Scanpage> {
         case Cardinfo.website:
           website = dragitem;
           break;
+        case Cardinfo.company:
+          company = dragitem;
+          break;
 
         default:
       }
@@ -62,10 +67,12 @@ class _ScanpageState extends State<Scanpage> {
     print(name);
     final info = Contactmodel(
       name: name,
+      designation: designation,
       mobile: mobile,
       email: email,
       address: address,
       website: website,
+      company: company,
       image: image,
     );
     context.goNamed(Contactform.routername, extra: info);
@@ -130,6 +137,11 @@ class _ScanpageState extends State<Scanpage> {
                     property: Cardinfo.address,
                     ondrop: getproperties,
                   ),
+                  Dragcarditem(
+                    property: Cardinfo.company,
+                    ondrop: getproperties,
+                  ),
+
                   Dragcarditem(
                     property: Cardinfo.website,
                     ondrop: getproperties,

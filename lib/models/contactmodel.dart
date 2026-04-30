@@ -1,6 +1,7 @@
 class Contactmodel {
   int id;
   String name;
+  String designation;
   String mobile;
   String email;
   String address;
@@ -10,6 +11,7 @@ class Contactmodel {
   Contactmodel({
     this.id = -1,
     required this.name,
+    this.designation = "",
     required this.mobile,
     this.email = "",
     this.company = "",
