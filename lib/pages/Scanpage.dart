@@ -64,7 +64,7 @@ class _ScanpageState extends State<Scanpage> {
   }
 
   void setdata() {
-    print(name);
+    //print(name);
     final info = Contactmodel(
       name: name,
       designation: designation,
